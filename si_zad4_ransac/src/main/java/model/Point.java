@@ -12,6 +12,14 @@ public class Point {
     private int[] features;
     private Point neighbour = null;
 
+    public Point(double x, double y, int[] features) {
+        this.x = x;
+        this.y = y;
+        System.arraycopy(features, 0, this.features, 0, features.length);
+        this.neighbour = null;
+    }
+
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -31,4 +39,5 @@ public class Point {
                 this.x, this.y, this.neighbour);
 
     }
+
 }
