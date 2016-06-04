@@ -7,6 +7,7 @@ import com.google.common.base.Objects;
  */
 public class Point {
 
+    public static final int NUMBER_OF_FEATIRES = 128;
     private double x;
     private double y;
     private int[] features;
@@ -62,5 +63,13 @@ public class Point {
 
     public void setNeighbour(Point neighbour) {
         this.neighbour = neighbour;
+    }
+
+    public int[] getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(int[] features) {
+        this.features = features;
     }
 }

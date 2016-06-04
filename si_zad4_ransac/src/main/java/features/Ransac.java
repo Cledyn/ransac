@@ -12,17 +12,21 @@ import java.util.List;
 public class Ransac {
 
 
-    private double countDistance(double x1, double y1, double x2, double y2) {
-        return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
+    private double countDistance(Point point1, Point point2) {
+        double distance = 0;
+        for (int i = 0; i < point1.NUMBER_OF_FEATIRES; i++) {
+            distance += Math.pow((point1.getFeatures()[i] - point2.getFeatures()[i]), 2);
+        }
+        return Math.sqrt(distance);
     }
 
-    private void findClosestNeighbour(List<Point> points, Point point){
+    private void findClosestNeighbour(List<Point> points, Point point) {
         double minDistance = Double.MAX_VALUE;
         Point closestNeighbour = null;
-        for(Point neighbour:points){
-            if(!point.equals(neighbour)){
-                double distance = countDistance(point.getX(), neighbour.getX(), point.getY(), neighbour.getY());
-                if(distance<minDistance){
+        for (Point neighbour : points) {
+            if (!point.equals(neighbour)) {
+                double distance = countDistance(point, neighbour);
+                if (distance < minDistance) {
                     minDistance = distance;
                     closestNeighbour = neighbour;
                 }
@@ -37,16 +41,16 @@ public class Ransac {
         }
     }
 
-    private boolean checkIfPair(Point point1, Point point2){
+    private boolean checkIfPair(Point point1, Point point2) {
         return point1.getNeighbour().equals(point2) && point2.getNeighbour().equals(point1);
     }
 
-    private List<Pair> makePairs(List<Point> points){
+    private List<Pair> makePairs(List<Point> points) {
         setPointsNeighbours(points);
 
         List<Pair> pairs = new ArrayList<Pair>();
         for (Point point : points) {
-            if(checkIfPair(point, point.getNeighbour())){
+            if (checkIfPair(point, point.getNeighbour())) {
                 pairs.add(new Pair(point, point.getNeighbour()));
             }
         }
