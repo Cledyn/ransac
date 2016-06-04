@@ -26,5 +26,8 @@
         <module name="si_zad4_ransac" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="si_zad4_ransac" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>
