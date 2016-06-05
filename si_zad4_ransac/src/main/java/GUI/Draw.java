@@ -27,8 +27,8 @@ public class Draw extends JFrame {
     private static Logger LOGGER = LoggerFactory.getLogger(Draw.class);
     private Photo photo1;
     private Photo photo2;
-    private final static String FILE1_FEATURES_FILEPATH = "D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d1.png.haraff.sift";
-    private final static String FILE2_FEATURES_FILEPATH = "D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d2.png.haraff.sift";
+    private final static String FILE1_FEATURES_FILEPATH = "D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\w.png.haraff.sift";
+    private final static String FILE2_FEATURES_FILEPATH = "D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\w2.png.haraff.sift";
     private final static Color[] COLORS = {Color.ORANGE, Color.GRAY, Color.GREEN, Color.RED, Color.BLACK, Color.BLUE, Color.MAGENTA, Color.white};
     private final static Random rnd = new Random();
 
@@ -68,18 +68,6 @@ public class Draw extends JFrame {
 //        g2.draw(new Ellipse2D.Double(690.0, 390.0, 20.0, 20.0));
     }
 
-//todo: old one
-//    private void paintLines(Graphics2D g2){
-//        for(Pair pair:photo1.getPairs()){
-//            double x1 = pair.getPoint1().getX()*this.getWidth()/100;
-//            double x2 = pair.getPoint2().getX()*this.getWidth()/100;
-//            double y1 = pair.getPoint1().getY()*this.getWidth()/100;
-//            double y2 = pair.getPoint2().getY()*this.getWidth()/100;
-//            Shape line = new Line2D.Double(x1, y1, x2, y2);
-//            g2.setColor(Color.ORANGE);
-//            g2.draw(line);
-//        }
-//    }
 
     private void paintLines(Graphics2D g2) {
         for (Pair pair : photo1.getPairs()) {
@@ -116,10 +104,11 @@ public class Draw extends JFrame {
     public static void main(String[] args) throws FileNotFoundException {
         NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer(FILE1_FEATURES_FILEPATH, FILE1_FEATURES_FILEPATH);
         List<Pair> allPairsMake = analyzer.makePairs();
-        List<Pair> allPairs = Draw.moveSdPointCoordinates(allPairsMake,400, 300);
+//        List<Pair> allPairs = Draw.moveSdPointCoordinates(allPairsMake,400, 300);
 //       List<Pair> allPairsAnalyzer = analyzer.makePairs();
 //        LOGGER.info("All pairs size {}", allPairsAnalyzer.size());
-//        List<Pair> consistentPairs = analyzer.getConsistentPairsAmongAllPairs(16,0.1);
+        List<Pair> consistentPairs = analyzer.getConsistentPairsAmongAllPairs(80,0.125);
+        List<Pair> allPairs = Draw.moveSdPointCoordinates(consistentPairs,400, 300);
 //        LOGGER.info("consistent pairs size {}", consistentPairs.size());
 //        for(Pair pair : consistentPairs){
 //            LOGGER.info("Consistent pair: {}",pair.toString());
@@ -144,9 +133,9 @@ public class Draw extends JFrame {
         for (Pair single : allPairs) {
             System.out.println("Single: " + " " + single.getPoint1().toString() + " " + single.getPoint2().toString());
         }
-        Photo ph1 = new Photo(new File("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d1.png"),
+        Photo ph1 = new Photo(new File("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\w.png"),
                 null, allPairs);
-        Photo ph2 = new Photo(new File("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d2.png"),
+        Photo ph2 = new Photo(new File("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\w2.png"),
                 null, allPairs);
         Draw draw = new Draw("test");
         draw.setPhoto1(ph1);

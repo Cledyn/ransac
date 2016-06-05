@@ -28,7 +28,6 @@ public final class FeaturesParser {
         List<Point> points = new ArrayList<Point>(pointsNo);
         while (sc.hasNext()) {
             String featuresForSinglePoint = sc.nextLine();
-        //    LOGGER.info("Point for single feature {}", featuresForSinglePoint);
             Point nextPoint = readDataForSinglePoint(featuresForSinglePoint, photoNo);
             points.add(nextPoint);
 

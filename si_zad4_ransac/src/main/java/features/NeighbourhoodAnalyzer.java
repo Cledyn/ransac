@@ -10,7 +10,6 @@ import parser.FeaturesParser;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +47,7 @@ public class NeighbourhoodAnalyzer {
         double minDistance = Double.MAX_VALUE;
         Point closestNeighbour = null;
         for (Point neighbour : points) {
-            if (!point.equals(neighbour)) { //todo: to chyba tu nie potrzebne, skoro points to lista punktów na obrazie B, a point - punkt na obrazie A
+            if (!point.equals(neighbour)) {
                 double distance = countDistanceFeatures(point, neighbour);
                 if (distance < minDistance) {
                     minDistance = distance;
@@ -91,26 +90,6 @@ public class NeighbourhoodAnalyzer {
         return allPairs;
     }
 
-    //todo: new version
-    //todo: remove possibility of redundant pairs on list --> when to list is added new Pair(point, point.getNeighbour()) and new Pair(point.getNeighbour(), point.getNeighbour().getNeighbour())
-//    public void makePairs(List<Point> pointsOnPhoto1, List<Point> pointsOnPhoto2) {
-//        Preconditions.checkArgument(pointsOnPhoto1.size() == pointsOnPhoto2.size(), "Number of pointes must be the same on both lists!");
-//        for (Point pointOnA : pointsOnPhoto1) {
-//            setPointsNeighbours(pointsOnPhoto2, pointOnA);
-//        }
-//        for (Point pointOnB : pointsOnPhoto2) {
-//            setPointsNeighbours(pointsOnPhoto1, pointOnB);
-//        }
-//
-//        for (Point point : pointsOnPhoto1) {
-//            if (checkIfPair(point, point.getNeighbour())) {
-//                Pair newPair = new Pair(point, point.getNeighbour());
-//                if (!pairAlreadyExists(newPair)) {
-//                    allPairs.add(new Pair(point, point.getNeighbour()));
-//                }
-//            }
-//        }
-//    }
 
     public void findNeighbourhood(int numberOfNeighbours, final Point point) {
         List<Point> points = null;
@@ -128,6 +107,7 @@ public class NeighbourhoodAnalyzer {
 //        findNeighbourhood(point);
 //    }
     //todo normalizacja erroru!!
+    //todo: nie trzeba normalizować. To chyba nie działa zbyt dobrze, ale nie wiem czemu (during invastigation)
     public List<Pair> getConsistentPairsAmongAllPairs(int numberOfNeighbours, double consistencyLimit) {
 
         List<Pair> pairs = makePairs();
@@ -141,7 +121,6 @@ public class NeighbourhoodAnalyzer {
             findNeighbourhood(numberOfNeighbours, pair.getPoint2());
         }
 
-        //to jest dobrze napisane xD
         for (Pair pair : pairs) {
             matchingPointsInHeighbourhood = 0;
             for (int i = 0; i < pair.getPoint1().getNeighbourhood().size(); i++) {
@@ -150,7 +129,11 @@ public class NeighbourhoodAnalyzer {
                 }
             }
             Preconditions.checkArgument(matchingPointsInHeighbourhood <= numberOfNeighbours, "Cannot be more matiching points than neighbourhood size!");
-            if (matchingPointsInHeighbourhood / numberOfNeighbours >= consistencyLimit) {
+            double res =(double) matchingPointsInHeighbourhood / numberOfNeighbours;
+            LOGGER.info("Matching points {}. Hit {}",matchingPointsInHeighbourhood, res);
+
+            if ((double)matchingPointsInHeighbourhood / numberOfNeighbours >= consistencyLimit) {
+                LOGGER.info("Consistent pair found!");
                 consistentPairs.add(pair);
             }
         }
