@@ -2,6 +2,7 @@ package model;
 
 import com.google.common.base.Objects;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -16,6 +17,11 @@ public class Point {
     private Point neighbour = null;
     private List<Point> neighbourhood;
 
+    public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public int getPhotoNo() {
         return photoNo;
     }
@@ -25,14 +31,18 @@ public class Point {
     public Point(double x, double y, int[] features) {
         this.x = x;
         this.y = y;
-//        System.arraycopy(features, 0, this.features, 0, features.length);
+        this.features = Arrays.copyOf(features, NUMBER_OF_FEATURES);
         this.neighbour = null;
     }
 
     public Point(double x, double y, int[] features, int photoNo) {
         this.x = x;
         this.y = y;
-//        System.arraycopy(features, 0, this.features, 0, features.length);
+        this.features = Arrays.copyOf(features, NUMBER_OF_FEATURES);
+//        this.features = new int [NUMBER_OF_FEATURES];
+//        System.arraycopy(features, 0,
+//                this.features, 0,
+//                features.length);
         this.neighbour = null;
         this.photoNo = photoNo;
     }
@@ -45,9 +55,15 @@ public class Point {
         }
         if (getClass() != obj.getClass()) return false;
         final Point other = (Point) obj;
+        if(this.neighbour == null && other.neighbour !=null){
+            return false;
+        }
         return Objects.equal(this.x, other.x)
-                && Objects.equal(this.y, other.y)
-                && Objects.equal(this.neighbour, other.neighbour);
+                && Objects.equal(this.y, other.y) && (this.neighbour == null && other.neighbour == null ||
+                Objects.equal(this.neighbour.getX(),
+                        other.neighbour.getX())
+                && Objects.equal(this.neighbour.getY(), other.neighbour.getY()));
+
     }
 
     @Override
@@ -59,7 +75,7 @@ public class Point {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.valueOf(x) + " " + String.valueOf(y);
     }
 

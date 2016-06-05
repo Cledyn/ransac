@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import model.Pair;
 import model.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import parser.FeaturesParser;
 
 import java.io.FileNotFoundException;
@@ -18,11 +20,13 @@ import java.util.stream.Collectors;
  */
 public class NeighbourhoodAnalyzer {
 
+    private static Logger LOGGER = LoggerFactory.getLogger(NeighbourhoodAnalyzer.class);
     private List<Point> photo1;
     private List<Point> photo2;
     private List<Pair> allPairs;
 
     public NeighbourhoodAnalyzer(String filePathToFeaturesPic0, String filePathToFeaturesPic1) throws FileNotFoundException {
+       LOGGER.info("Parsing images data...");
         photo1 = FeaturesParser.parseFeatures(filePathToFeaturesPic0, 0);
         photo2 = FeaturesParser.parseFeatures(filePathToFeaturesPic1, 1);
         allPairs = Lists.newArrayList();
@@ -67,29 +71,48 @@ public class NeighbourhoodAnalyzer {
         return allPairs.contains(pair);
     }
 
-
-    //todo: new version
-    //todo: remove possibility of redundant pairs on list --> when to list is added new Pair(point, point.getNeighbour()) and new Pair(point.getNeighbour(), point.getNeighbour().getNeighbour())
-    public void makePairs2(List<Point> pointsOnPhoto1, List<Point> pointsOnPhoto2) {
-        Preconditions.checkArgument(pointsOnPhoto1.size() == pointsOnPhoto2.size(), "Number of pointes must be the same on both lists!");
-        for (Point pointOnA : pointsOnPhoto1) {
-            setPointsNeighbours(pointsOnPhoto2, pointOnA);
+    public List<Pair> makePairs() {
+        Preconditions.checkArgument(photo1.size() == photo2.size(), "Number of pointes must be the same on both lists!");
+        for (Point pointOnA : photo1) {
+            setPointsNeighbours(photo2, pointOnA);
         }
-        for (Point pointOnB : pointsOnPhoto2) {
-            setPointsNeighbours(pointsOnPhoto1, pointOnB);
+        for (Point pointOnB : photo2) {
+            setPointsNeighbours(photo1, pointOnB);
         }
 
-        for (Point point : pointsOnPhoto1) {
+        for (Point point : photo1) {
             if (checkIfPair(point, point.getNeighbour())) {
                 Pair newPair = new Pair(point, point.getNeighbour());
                 if (!pairAlreadyExists(newPair)) {
-                    allPairs.add(new Pair(point, point.getNeighbour()));
+                    allPairs.add(newPair);
                 }
             }
         }
+        return allPairs;
     }
 
-    public void findNeighbourhood(int numberOfNeighbours, final Point point, double error) {
+    //todo: new version
+    //todo: remove possibility of redundant pairs on list --> when to list is added new Pair(point, point.getNeighbour()) and new Pair(point.getNeighbour(), point.getNeighbour().getNeighbour())
+//    public void makePairs(List<Point> pointsOnPhoto1, List<Point> pointsOnPhoto2) {
+//        Preconditions.checkArgument(pointsOnPhoto1.size() == pointsOnPhoto2.size(), "Number of pointes must be the same on both lists!");
+//        for (Point pointOnA : pointsOnPhoto1) {
+//            setPointsNeighbours(pointsOnPhoto2, pointOnA);
+//        }
+//        for (Point pointOnB : pointsOnPhoto2) {
+//            setPointsNeighbours(pointsOnPhoto1, pointOnB);
+//        }
+//
+//        for (Point point : pointsOnPhoto1) {
+//            if (checkIfPair(point, point.getNeighbour())) {
+//                Pair newPair = new Pair(point, point.getNeighbour());
+//                if (!pairAlreadyExists(newPair)) {
+//                    allPairs.add(new Pair(point, point.getNeighbour()));
+//                }
+//            }
+//        }
+//    }
+
+    public void findNeighbourhood(int numberOfNeighbours, final Point point) {
         List<Point> points = null;
         if (point.getPhotoNo() == 0) {//szukaj sąsiadów na liście punktów pierwszego obrazka
             points = photo1.stream().filter(p -> !p.equals(point)).collect(Collectors.toCollection(ArrayList<Point>::new));
@@ -98,23 +121,24 @@ public class NeighbourhoodAnalyzer {
         }
         points.sort(Comparator.comparing(p -> countDistance(point, p)));
         point.setNeighbourhood(points.subList(0, numberOfNeighbours));
-        System.out.println(Arrays.toString(point.getNeighbourhood().toArray()));
+//        System.out.println(Arrays.toString(point.getNeighbourhood().toArray()));
     }
 
     //    private void setNeighbourhoodForPhotos(List<Point> pointsOnPhotoA, List<Point> pointsOnPhotoB, int numberOfNeighbours ){
 //        findNeighbourhood(point);
 //    }
     //todo normalizacja erroru!!
-    public List<Pair> getConsistentPairsAmongAllPairs(List<Pair> pairs, int numberOfNeighbours, double error, double consistencyLimit) {
+    public List<Pair> getConsistentPairsAmongAllPairs(int numberOfNeighbours, double consistencyLimit) {
 
+        List<Pair> pairs = makePairs();
         List<Pair> consistentPairs = new ArrayList<Pair>();
         int matchingPointsInHeighbourhood = 0;
 
         //nadanie sąsiedztwa każdemu punktowi z pary
         for (Pair pair : pairs) {
             Preconditions.checkArgument(pair.getPoint1().getPhotoNo() != pair.getPoint2().getPhotoNo(), "Points in pair must have been matched on different pictures!");
-            findNeighbourhood(numberOfNeighbours, pair.getPoint1(), error);
-            findNeighbourhood(numberOfNeighbours, pair.getPoint2(), error);
+            findNeighbourhood(numberOfNeighbours, pair.getPoint1());
+            findNeighbourhood(numberOfNeighbours, pair.getPoint2());
         }
 
         //to jest dobrze napisane xD
@@ -134,6 +158,13 @@ public class NeighbourhoodAnalyzer {
 
 
     }
+
+    public List<Pair> analyze(){
+        makePairs();
+        return allPairs;
+
+    }
+
 
     // sprawdzam czy dziala findNeighbours - wyglada na to ze dziala :>>
     public static void main(String[] args) {
