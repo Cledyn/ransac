@@ -16,11 +16,25 @@ public class Point {
     private Point neighbour = null;
     private List<Point> neighbourhood;
 
+    public int getPhotoNo() {
+        return photoNo;
+    }
+
+    private int photoNo;
+
     public Point(double x, double y, int[] features) {
         this.x = x;
         this.y = y;
 //        System.arraycopy(features, 0, this.features, 0, features.length);
         this.neighbour = null;
+    }
+
+    public Point(double x, double y, int[] features, int photoNo) {
+        this.x = x;
+        this.y = y;
+//        System.arraycopy(features, 0, this.features, 0, features.length);
+        this.neighbour = null;
+        this.photoNo = photoNo;
     }
 
 

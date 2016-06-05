@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Sandra on 2016-06-04.
  */
-public class ConsistensyAnalize implements  Algorithm{
+public class ConsistensyAnalizer implements  Algorithm{
 
     public double countDistanceFeatures(Point point1, Point point2) {
         double distance = 0;
@@ -99,7 +99,7 @@ public class ConsistensyAnalize implements  Algorithm{
 
     // sprawdzam czy dziala findNeighbours - wyglada na to ze dziala :>>
     public static void main(String[] args) {
-        ConsistensyAnalize consistensyAnalize = new ConsistensyAnalize();
+        ConsistensyAnalizer consistensyAnalize = new ConsistensyAnalizer();
         Point p1 = new Point(1,2,null);
         Point p2 = new Point(1,1,null);
         Point p3 = new Point(1,7,null);

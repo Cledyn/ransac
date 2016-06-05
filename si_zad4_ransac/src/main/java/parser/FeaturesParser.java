@@ -21,7 +21,7 @@ public final class FeaturesParser {
     private static final int Y_COORDINATE_INDEX_IN_LINE = 1;
     private static final int FEATURE_START_INDEX = 5;
 
-    private static List<Point> parseFeatures(String fileName) throws FileNotFoundException {
+    public static List<Point> parseFeatures(String fileName, int photoNo) throws FileNotFoundException {
         Scanner sc = new Scanner(new File(fileName));
         int featuresNo = Integer.parseInt(sc.nextLine());
         int pointsNo = Integer.parseInt(sc.nextLine());
@@ -29,19 +29,19 @@ public final class FeaturesParser {
         while (sc.hasNext()) {
             String featuresForSinglePoint = sc.nextLine();
             LOGGER.info("Point for single feature {}", featuresForSinglePoint);
-            Point nextPoint = readDataForSinglePoint(featuresForSinglePoint);
+            Point nextPoint = readDataForSinglePoint(featuresForSinglePoint, photoNo);
             points.add(nextPoint);
 
         }
         return points;
     }
 
-    private static Point readDataForSinglePoint(String featuresForSinglePoint) {
+    private static Point readDataForSinglePoint(String featuresForSinglePoint, int photoNo) {
         String[] data = featuresForSinglePoint.split(SPACE_SEPARATOR);
         double x = Double.parseDouble(data[X_COORDINATE_INDEX_IN_LINE]);
         double y = Double.parseDouble(data[Y_COORDINATE_INDEX_IN_LINE]);
         int[] featureTmpArr = getFeaturesOnlyForPoint(data);
-        return new Point(x, y, featureTmpArr);
+        return new Point(x, y, featureTmpArr, photoNo);
     }
 
     private static int[] getFeaturesOnlyForPoint(String[] data) {
