@@ -2,21 +2,24 @@ package model;
 
 import com.google.common.base.Objects;
 
+import java.util.List;
+
 /**
  * Created by Sandra on 2016-06-04.
  */
 public class Point {
 
-    public static final int NUMBER_OF_FEATIRES = 128;
+    public static final int NUMBER_OF_FEATURES = 128;
     private double x;
     private double y;
     private int[] features;
     private Point neighbour = null;
+    private List<Point> neighbourhood;
 
     public Point(double x, double y, int[] features) {
         this.x = x;
         this.y = y;
-        System.arraycopy(features, 0, this.features, 0, features.length);
+//        System.arraycopy(features, 0, this.features, 0, features.length);
         this.neighbour = null;
     }
 
@@ -39,6 +42,11 @@ public class Point {
         return Objects.hashCode(
                 this.x, this.y, this.neighbour);
 
+    }
+
+    @Override
+    public String toString(){
+        return String.valueOf(x) + " " + String.valueOf(y);
     }
 
     public double getX() {
@@ -71,5 +79,13 @@ public class Point {
 
     public void setFeatures(int[] features) {
         this.features = features;
+    }
+
+    public List<Point> getNeighbourhood() {
+        return neighbourhood;
+    }
+
+    public void setNeighbourhood(List<Point> neighbourhood) {
+        this.neighbourhood = neighbourhood;
     }
 }

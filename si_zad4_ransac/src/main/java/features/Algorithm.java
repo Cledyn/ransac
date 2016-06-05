@@ -10,8 +10,8 @@ import java.util.List;
  */
 public interface Algorithm {
 
-    double countDistance(Point point1, Point point2);
-    void findNeighbourhood(List<Point> points, int numberOfNeighbours, Point point);
+    double countDistanceFeatures(Point point1, Point point2);
+    void findNeighbourhood(List<Point> points, int numberOfNeighbours, Point point, double error);
     void findClosestNeighbour(List<Point> points, Point point);
     List<Pair> makePairs(List<Point> points);
 
