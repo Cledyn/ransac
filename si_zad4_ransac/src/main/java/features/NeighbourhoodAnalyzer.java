@@ -10,12 +10,13 @@ import parser.FeaturesParser;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
-This class analyze pairs of corresponding points on separate images and looks for closes neighbours for all paired points
+ * This class analyze pairs of corresponding points on separate images and looks for closes neighbours for all paired points
  */
 
 public class NeighbourhoodAnalyzer {
@@ -26,7 +27,7 @@ public class NeighbourhoodAnalyzer {
     private List<Pair> allPairs;
 
     public NeighbourhoodAnalyzer(String filePathToFeaturesPic0, String filePathToFeaturesPic1) throws FileNotFoundException {
-       LOGGER.info("Parsing images data...");
+        LOGGER.info("Parsing images data...");
         photo1 = FeaturesParser.parseFeatures(filePathToFeaturesPic0, 0);
         photo2 = FeaturesParser.parseFeatures(filePathToFeaturesPic1, 1);
         allPairs = Lists.newArrayList();
@@ -96,6 +97,7 @@ public class NeighbourhoodAnalyzer {
 
     public void findNeighbourhood(int numberOfNeighbours, final Point point) {
         List<Point> points = null;
+        filterPointsOnPhotosOnlyHavingPair();
         if (point.getPhotoNo() == 0) {//szukaj sąsiadów na liście punktów pierwszego obrazka
             points = photo1.stream().filter(p -> !p.equals(point)).collect(Collectors.toCollection(ArrayList<Point>::new));
         } else { //szukaj sąsiadów na liście punktów drugiego obrazka
@@ -103,7 +105,28 @@ public class NeighbourhoodAnalyzer {
         }
         points.sort(Comparator.comparing(p -> countDistance(point, p)));
         point.setNeighbourhood(points.subList(0, numberOfNeighbours));
-//        System.out.println(Arrays.toString(point.getNeighbourhood().toArray()));
+        LOGGER.info("Point found neighbours {}", Arrays.toString(point.getNeighbourhood().toArray()));
+    }
+
+    private void filterPointsOnPhotosOnlyHavingPair() {
+        List<Point> photo1filtered = new ArrayList<>();
+        List<Point> photo2filtered = new ArrayList<>();
+        for (Pair pair : allPairs) {
+            if (pair.getPoint1().getPhotoNo() == 0) {
+                photo1filtered.add(pair.getPoint1());
+            }
+            if (pair.getPoint1().getPhotoNo() == 1) {
+                photo2filtered.add(pair.getPoint1());
+            }
+            if (pair.getPoint2().getPhotoNo() == 0) {
+                photo1filtered.add(pair.getPoint2());
+            }
+            if (pair.getPoint2().getPhotoNo() == 1) {
+                photo2filtered.add(pair.getPoint2());
+            }
+        }
+        photo1 = photo1filtered;
+        photo2 = photo2filtered;
     }
 
     //todo normalizacja erroru!!
@@ -116,36 +139,54 @@ public class NeighbourhoodAnalyzer {
 
         //nadanie sąsiedztwa każdemu punktowi z pary
         for (Pair pair : pairs) {
-            Preconditions.checkArgument(pair.getPoint1().getPhotoNo() != pair.getPoint2().getPhotoNo(), "Points in pair must have been matched on different pictures!");
+//            Preconditions.checkArgument(pair.getPoint1().getPhotoNo() != pair.getPoint2().getPhotoNo(), "Points in pair must have been matched on different pictures!");
             findNeighbourhood(numberOfNeighbours, pair.getPoint1());
             findNeighbourhood(numberOfNeighbours, pair.getPoint2());
+//            LOGGER.info("Found neighbours point 1 : {}",pair.getPoint1().getNeighbourhood().size());
+//            LOGGER.info("Found neighbours point 2 : {}",pair.getPoint2().getNeighbourhood().size());
         }
 
         for (Pair pair : pairs) {
             int matchingPointsInNeighbourhood = getNeighboursMatchInPair(pair);
             Preconditions.checkArgument(matchingPointsInNeighbourhood <= numberOfNeighbours, "Cannot be more matiching points than neighbourhood size!");
-            double res =(double) matchingPointsInNeighbourhood / numberOfNeighbours;
-            LOGGER.info("Matching points {}. Hit {}",matchingPointsInNeighbourhood, res);
+            double res = (double)matchingPointsInNeighbourhood / (double)numberOfNeighbours;
+            LOGGER.info("Matching points {}. Number of neighbours {}. Hit {}", matchingPointsInNeighbourhood, numberOfNeighbours, res);
 
-            if ((double)matchingPointsInNeighbourhood / numberOfNeighbours >= consistencyLimit) {
+            if ((double) matchingPointsInNeighbourhood / numberOfNeighbours >= consistencyLimit) {
                 LOGGER.info("Consistent pair found!");
-              consistentPairs.add(pair);
+                consistentPairs.add(pair);
             }
         }
+        LOGGER.info("FOUND PAIRS {}", consistentPairs.size());
         return consistentPairs;
     }
 
-    private int getNeighboursMatchInPair(Pair pair){
-        int matchingPointsInHeighbourhood = 0;
-        for (int i = 0; i < pair.getPoint1().getNeighbourhood().size(); i++) {
-            if(isMatchForPoints(pair,i)){
-                matchingPointsInHeighbourhood++;
+    private int getNeighboursMatchInPair(Pair pair) {
+        int matchingPointsInNeighbourhood = 0;
+//        LOGGER.info("Point 1 neighbours {}", Arrays.toString(pair.getPoint1().getNeighbourhood().toArray()));
+//        LOGGER.info("Point 2 neighbours {}", Arrays.toString(pair.getPoint2().getNeighbourhood().toArray()));
+        for (Point neighbourP1 : pair.getPoint1().getNeighbourhood()) {
+//            LOGGER.info("Neighbour: {}", neighbour);
+//            LOGGER.info("Neighbour neighbour: {}", Arrays.toString(neighbour.getNeighbourhood().toArray()));
+            if (isMatchForPoints(pair.getPoint2(), neighbourP1)) {
+                matchingPointsInNeighbourhood++;
             }
         }
-        return matchingPointsInHeighbourhood;
+        LOGGER.info("Matching points getNeighbourMatchInPair {}", matchingPointsInNeighbourhood);
+        return matchingPointsInNeighbourhood;
     }
-    private boolean isMatchForPoints(Pair pair, int index){
-        return pair.getPoint2().getNeighbourhood().contains(pair.getPoint1().getNeighbourhood().get(index));
+
+    // point2 to jest naighbour punktu 1 trzeba sprawdzić czy point1 jest neighbourem punktu 2
+    private boolean isMatchForPoints(Point point2, Point neighbourP1) {
+        for (Point neighbourP2 : point2.getNeighbourhood()) {
+//            LOGGER.info("(isMatch) : {} - {}", neighbourP2, neighbourP1.getNeighbour());
+//            neighbour.getX() == point1.getX() && neighbour.getY() == point1.getY()
+            if (neighbourP1.getX() == neighbourP2.getNeighbour().getX() && neighbourP1.getY() == neighbourP2.getNeighbour().getY()) {
+                LOGGER.info("** Neighbour ISMATCH **");
+                return true;
+            }
+        }
+        return false;
     }
 }
 

@@ -28,10 +28,11 @@ public class Draw extends JFrame {
     private static Logger LOGGER = LoggerFactory.getLogger(Draw.class);
     private Photo photo1;
     private Photo photo2;
-    private final static String FILE1_FEATURES_FILEPATH = "D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d1.png.haraff.sift";
-    private final static String FILE2_FEATURES_FILEPATH = "D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d2.png.haraff.sift";
+    private final static String FILE1_FEATURES_FILEPATH = "F:\\PWr\\VI_SEMESTR\\SIiW\\RANSAC\\ransac\\si_zad4_ransac\\src\\main\\resources\\test1kubek\\kubek1.png.haraff.sift";
+    private final static String FILE2_FEATURES_FILEPATH = "F:\\PWr\\VI_SEMESTR\\SIiW\\RANSAC\\ransac\\si_zad4_ransac\\src\\main\\resources\\test1kubek\\kubek2.png.haraff.sift";
     private final static Color[] COLORS = {Color.ORANGE, Color.GRAY, Color.GREEN, Color.RED, Color.BLACK, Color.BLUE, Color.MAGENTA, Color.white};
     private final static Random rnd = new Random();
+    public static int xShift = 640;
 
     public Draw(String title) throws HeadlessException, FileNotFoundException {
         super(title);
@@ -61,7 +62,8 @@ public class Draw extends JFrame {
         }
         g2.drawImage(image, 10, 10, this);
         g2.drawImage(image2, image.getWidth(), 10, this);
-        this.setSize(image.getWidth() + image2.getWidth(), image.getHeight());
+
+        this.setSize(image2.getWidth() + xShift, image.getHeight());
         paintLines(g2);
 //        g2.draw(new Line2D.Double(100.0,100.0,700.0,400.0));
 //        g2.draw(new Ellipse2D.Double(90.0, 90.0, 20.0, 20.0));
@@ -90,12 +92,13 @@ public class Draw extends JFrame {
         this.photo2 = photo2;
     }
 
-    public static List<Pair> moveSdPointCoordinates(List<Pair> allPairs, double xShift, double yShift) {
+    public static List<Pair> moveSdPointCoordinates(List<Pair> allPairs) {
         List<Pair> shiftedPoints = Lists.newCopyOnWriteArrayList(allPairs);
         for (Pair shiftedPair : shiftedPoints) {
             Point snd = shiftedPair.getPoint2();
             double oldX = snd.getX();
-            snd.setX(oldX + xShift);
+            snd.setX(oldX + xShift + 10);
+            snd.setY(snd.getY() + 10);
         }
         return shiftedPoints;
 
@@ -104,39 +107,12 @@ public class Draw extends JFrame {
     public static void main(String[] args) throws FileNotFoundException {
         NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer(FILE1_FEATURES_FILEPATH, FILE2_FEATURES_FILEPATH);
         List<Pair> allPairsMake = analyzer.makePairs();
-                LOGGER.info("All pairs size {}", allPairsMake.size());
-//        List<Pair> allPairs = Draw.moveSdPointCoordinates(allPairsMake,400, 300);
-//       List<Pair> allPairsAnalyzer = analyzer.makePairs();
-//        LOGGER.info("All pairs size {}", allPairsAnalyzer.size());
-//        List<Pair> consistentPairs = analyzer.getConsistentPairsAmongAllPairs(80,0.10);
-        List<Pair> allPairs = Draw.moveSdPointCoordinates(allPairsMake,400, 300);
-//        LOGGER.info("consistent pairs size {}", consistentPairs.size());
-//        for(Pair pair : consistentPairs){
-//            LOGGER.info("Consistent pair: {}",pair.toString());
-//        }
-//        List<Pair> allPairs = Draw.moveSdPointCoordinates(consistentPairs,400, 300);
-//        for (Pair pair : allPairs){
-//            LOGGER.info("All afte cons {}",pair.toString());
-//        }
-//        model.Point p1 = new model.Point(10.0,20.0);
-//        model.Point p2 = new model.Point(10.9,10.1);
-//        model.Point p3 = new model.Point(20.3,70.44);
-//        model.Point p4 = new model.Point(60,40);
-//
-//                model.Point p1 = new model.Point(56.4181, 164.858);
-//        model.Point p2 = new model.Point(104.286, 164.452);
-//        model.Point p3 = new model.Point(456.0006, 465.39300000000003);
-//        model.Point p4 = new model.Point(503.98900000000003, 464.023);
-//        java.util.List<Pair> allPairs = new ArrayList<Pair>();
-//        allPairs.add(new Pair(p1, p3));
-//        allPairs.add(new Pair(p2, p4));
-
-        for (Pair single : allPairs) {
-            System.out.println("Single: " + " " + single.getPoint1().toString() + " " + single.getPoint2().toString());
-        }
-        Photo ph1 = new Photo(new File("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d1.png"),
+        LOGGER.info("All pairs size {}", allPairsMake.size());
+        List<Pair> consistentPairs = analyzer.getConsistentPairsAmongAllPairs(25,0.3);
+        List<Pair> allPairs = Draw.moveSdPointCoordinates(consistentPairs);
+        Photo ph1 = new Photo(new File("F:\\PWr\\VI_SEMESTR\\SIiW\\RANSAC\\ransac\\si_zad4_ransac\\src\\main\\resources\\test1kubek\\kubek1.png"),
                 null, allPairs);
-        Photo ph2 = new Photo(new File("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d2.png"),
+        Photo ph2 = new Photo(new File("F:\\PWr\\VI_SEMESTR\\SIiW\\RANSAC\\ransac\\si_zad4_ransac\\src\\main\\resources\\test1kubek\\kubek2.png"),
                 null, allPairs);
         Draw draw = new Draw("test");
         draw.setPhoto1(ph1);

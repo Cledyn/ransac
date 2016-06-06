@@ -16,6 +16,8 @@ public class Point {
     private double y;
     private int[] features;
     private Point neighbour = null;
+    private int photoNo;
+
     private List<Point> neighbourhood;
 
     public Point(double x, double y) {
@@ -26,8 +28,6 @@ public class Point {
     public int getPhotoNo() {
         return photoNo;
     }
-
-    private int photoNo;
 
     public Point(double x, double y, int[] features) {
         this.x = x;
