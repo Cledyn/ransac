@@ -1,6 +1,7 @@
 package model;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
 import java.util.Arrays;
 import java.util.List;
@@ -121,6 +122,7 @@ public class Point {
     }
 
     public void setNeighbourhood(List<Point> neighbourhood) {
-        this.neighbourhood = neighbourhood;
+        this.neighbourhood = Lists.newCopyOnWriteArrayList(neighbourhood);
+//        this.neighbourhood = neighbourhood;
     }
 }

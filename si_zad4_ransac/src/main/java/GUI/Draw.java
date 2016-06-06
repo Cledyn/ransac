@@ -62,7 +62,6 @@ public class Draw extends JFrame {
         }
         g2.drawImage(image, 10, 10, this);
         g2.drawImage(image2, image.getWidth(), 10, this);
-
         this.setSize(image2.getWidth() + xShift, image.getHeight());
         paintLines(g2);
 //        g2.draw(new Line2D.Double(100.0,100.0,700.0,400.0));
@@ -105,7 +104,8 @@ public class Draw extends JFrame {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer(FILE1_FEATURES_FILEPATH, FILE2_FEATURES_FILEPATH);
+//        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer(FILE1_FEATURES_FILEPATH, FILE2_FEATURES_FILEPATH);
+        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer("kubek1.png.haraff.sift", FILE2_FEATURES_FILEPATH);
         List<Pair> allPairsMake = analyzer.makePairs();
         LOGGER.info("All pairs size {}", allPairsMake.size());
         List<Pair> consistentPairs = analyzer.getConsistentPairsAmongAllPairs(25,0.3);
