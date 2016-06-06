@@ -3,9 +3,7 @@ package model;
 import java.io.File;
 import java.util.List;
 
-/**
- * Created by Martyna on 05.06.2016.
- */
+
 public class Photo {
     private File filePath;
     private List<Point> points;

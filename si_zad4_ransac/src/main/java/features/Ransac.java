@@ -6,7 +6,7 @@ import model.Point;
 import java.util.List;
 
 /**
- * Created by Martyna on 04.06.2016.
+ * This class represents algorithm for finding corresponding points on pictures
  */
 public class Ransac {
 

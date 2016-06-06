@@ -6,8 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by Sandra on 2016-06-04.
+This is a model class that represents single point on bitmap
  */
+
 public class Point {
 
     public static final int NUMBER_OF_FEATURES = 128;
@@ -58,12 +59,16 @@ public class Point {
         if(this.neighbour == null && other.neighbour !=null){
             return false;
         }
+        return checkNeighbourEquality(other);
+
+    }
+
+    private boolean checkNeighbourEquality(Point other) {
         return Objects.equal(this.x, other.x)
                 && Objects.equal(this.y, other.y) && (this.neighbour == null && other.neighbour == null ||
                 Objects.equal(this.neighbour.getX(),
                         other.neighbour.getX())
                 && Objects.equal(this.neighbour.getY(), other.neighbour.getY()));
-
     }
 
     @Override

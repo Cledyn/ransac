@@ -15,8 +15,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by Sandra on 2016-06-05.
+This class analyze pairs of corresponding points on separate images and looks for closes neighbours for all paired points
  */
+
 public class NeighbourhoodAnalyzer {
 
     private static Logger LOGGER = LoggerFactory.getLogger(NeighbourhoodAnalyzer.class);
@@ -29,6 +30,9 @@ public class NeighbourhoodAnalyzer {
         photo1 = FeaturesParser.parseFeatures(filePathToFeaturesPic0, 0);
         photo2 = FeaturesParser.parseFeatures(filePathToFeaturesPic1, 1);
         allPairs = Lists.newArrayList();
+    }
+
+    public NeighbourhoodAnalyzer() {
     }
 
     public double countDistanceFeatures(Point point1, Point point2) {
@@ -71,7 +75,7 @@ public class NeighbourhoodAnalyzer {
     }
 
     public List<Pair> makePairs() {
-        Preconditions.checkArgument(photo1.size() == photo2.size(), "Number of pointes must be the same on both lists!");
+//        Preconditions.checkArgument(photo1.size() == photo2.size(), "Number of pointes must be the same on both lists!");
         for (Point pointOnA : photo1) {
             setPointsNeighbours(photo2, pointOnA);
         }
@@ -90,7 +94,6 @@ public class NeighbourhoodAnalyzer {
         return allPairs;
     }
 
-
     public void findNeighbourhood(int numberOfNeighbours, final Point point) {
         List<Point> points = null;
         if (point.getPhotoNo() == 0) {//szukaj sąsiadów na liście punktów pierwszego obrazka
@@ -103,9 +106,6 @@ public class NeighbourhoodAnalyzer {
 //        System.out.println(Arrays.toString(point.getNeighbourhood().toArray()));
     }
 
-    //    private void setNeighbourhoodForPhotos(List<Point> pointsOnPhotoA, List<Point> pointsOnPhotoB, int numberOfNeighbours ){
-//        findNeighbourhood(point);
-//    }
     //todo normalizacja erroru!!
     //todo: nie trzeba normalizować. To chyba nie działa zbyt dobrze, ale nie wiem czemu (during invastigation)
     public List<Pair> getConsistentPairsAmongAllPairs(int numberOfNeighbours, double consistencyLimit) {
@@ -122,48 +122,30 @@ public class NeighbourhoodAnalyzer {
         }
 
         for (Pair pair : pairs) {
-            matchingPointsInHeighbourhood = 0;
-            for (int i = 0; i < pair.getPoint1().getNeighbourhood().size(); i++) {
-                if (pair.getPoint2().getNeighbourhood().contains(pair.getPoint1().getNeighbourhood().get(i))) {
-                    matchingPointsInHeighbourhood++;
-                }
-            }
-            Preconditions.checkArgument(matchingPointsInHeighbourhood <= numberOfNeighbours, "Cannot be more matiching points than neighbourhood size!");
-            double res =(double) matchingPointsInHeighbourhood / numberOfNeighbours;
-            LOGGER.info("Matching points {}. Hit {}",matchingPointsInHeighbourhood, res);
+            int matchingPointsInNeighbourhood = getNeighboursMatchInPair(pair);
+            Preconditions.checkArgument(matchingPointsInNeighbourhood <= numberOfNeighbours, "Cannot be more matiching points than neighbourhood size!");
+            double res =(double) matchingPointsInNeighbourhood / numberOfNeighbours;
+            LOGGER.info("Matching points {}. Hit {}",matchingPointsInNeighbourhood, res);
 
-            if ((double)matchingPointsInHeighbourhood / numberOfNeighbours >= consistencyLimit) {
+            if ((double)matchingPointsInNeighbourhood / numberOfNeighbours >= consistencyLimit) {
                 LOGGER.info("Consistent pair found!");
-                consistentPairs.add(pair);
+              consistentPairs.add(pair);
             }
         }
         return consistentPairs;
-
-
     }
 
-    public List<Pair> analyze(){
-        makePairs();
-        return allPairs;
-
+    private int getNeighboursMatchInPair(Pair pair){
+        int matchingPointsInHeighbourhood = 0;
+        for (int i = 0; i < pair.getPoint1().getNeighbourhood().size(); i++) {
+            if(isMatchForPoints(pair,i)){
+                matchingPointsInHeighbourhood++;
+            }
+        }
+        return matchingPointsInHeighbourhood;
     }
-
-
-    // sprawdzam czy dziala findNeighbours - wyglada na to ze dziala :>>
-    public static void main(String[] args) {
-        ConsistensyAnalizer consistensyAnalizer = new ConsistensyAnalizer();
-        Point p1 = new Point(1, 2, null);
-        Point p2 = new Point(1, 1, null);
-        Point p3 = new Point(1, 7, null);
-        Point p4 = new Point(1, 4, null);
-        Point p5 = new Point(0.5, 1.5, null);
-        List<Point> list = new ArrayList<Point>();
-        list.add(p1);
-        list.add(p2);
-        list.add(p3);
-        list.add(p4);
-        list.add(p5);
-        consistensyAnalizer.findNeighbourhood(list, 2, p1, 0);
+    private boolean isMatchForPoints(Pair pair, int index){
+        return pair.getPoint2().getNeighbourhood().contains(pair.getPoint1().getNeighbourhood().get(index));
     }
 }
 

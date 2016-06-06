@@ -19,16 +19,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+
 /**
- * Created by Martyna on 05.06.2016.
+ * This class is responsible for visualisation both images of the same object in different perspective and how matching points
  */
 public class Draw extends JFrame {
 
     private static Logger LOGGER = LoggerFactory.getLogger(Draw.class);
     private Photo photo1;
     private Photo photo2;
-    private final static String FILE1_FEATURES_FILEPATH = "D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\w.png.haraff.sift";
-    private final static String FILE2_FEATURES_FILEPATH = "D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\w2.png.haraff.sift";
+    private final static String FILE1_FEATURES_FILEPATH = "D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d1.png.haraff.sift";
+    private final static String FILE2_FEATURES_FILEPATH = "D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d2.png.haraff.sift";
     private final static Color[] COLORS = {Color.ORANGE, Color.GRAY, Color.GREEN, Color.RED, Color.BLACK, Color.BLUE, Color.MAGENTA, Color.white};
     private final static Random rnd = new Random();
 
@@ -45,7 +46,6 @@ public class Draw extends JFrame {
         this.photo1 = photo1;
         this.photo2 = photo2;
     }
-
     // wspolrzedne trzeba wyznaczac wzgledem gornego lewego wierzcholka
     public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
@@ -102,13 +102,14 @@ public class Draw extends JFrame {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer(FILE1_FEATURES_FILEPATH, FILE1_FEATURES_FILEPATH);
+        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer(FILE1_FEATURES_FILEPATH, FILE2_FEATURES_FILEPATH);
         List<Pair> allPairsMake = analyzer.makePairs();
+                LOGGER.info("All pairs size {}", allPairsMake.size());
 //        List<Pair> allPairs = Draw.moveSdPointCoordinates(allPairsMake,400, 300);
 //       List<Pair> allPairsAnalyzer = analyzer.makePairs();
 //        LOGGER.info("All pairs size {}", allPairsAnalyzer.size());
-        List<Pair> consistentPairs = analyzer.getConsistentPairsAmongAllPairs(80,0.125);
-        List<Pair> allPairs = Draw.moveSdPointCoordinates(consistentPairs,400, 300);
+//        List<Pair> consistentPairs = analyzer.getConsistentPairsAmongAllPairs(80,0.10);
+        List<Pair> allPairs = Draw.moveSdPointCoordinates(allPairsMake,400, 300);
 //        LOGGER.info("consistent pairs size {}", consistentPairs.size());
 //        for(Pair pair : consistentPairs){
 //            LOGGER.info("Consistent pair: {}",pair.toString());
@@ -133,9 +134,9 @@ public class Draw extends JFrame {
         for (Pair single : allPairs) {
             System.out.println("Single: " + " " + single.getPoint1().toString() + " " + single.getPoint2().toString());
         }
-        Photo ph1 = new Photo(new File("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\w.png"),
+        Photo ph1 = new Photo(new File("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d1.png"),
                 null, allPairs);
-        Photo ph2 = new Photo(new File("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\w2.png"),
+        Photo ph2 = new Photo(new File("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\d2.png"),
                 null, allPairs);
         Draw draw = new Draw("test");
         draw.setPhoto1(ph1);

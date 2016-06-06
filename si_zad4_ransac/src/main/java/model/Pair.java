@@ -3,7 +3,7 @@ package model;
 import com.google.common.base.Objects;
 
 /**
- * Created by Martyna on 04.06.2016.
+ * This class represents pair of corresponding points on photos
  */
 public class Pair {
     private Point point1;

@@ -9,7 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Created by Sandra on 2016-06-05.
+* This class is to get actual size (width and height) of given picture
  */
 public class ImgSizeRetriever {
 

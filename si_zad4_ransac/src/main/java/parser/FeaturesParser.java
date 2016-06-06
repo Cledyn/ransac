@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Created by Sandra on 2016-06-04.
+This class is responsible for parsing text file with extracted features of images and write them down to data structure - list of points on bitmap
  */
 public final class FeaturesParser {
 
