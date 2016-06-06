@@ -104,8 +104,8 @@ public class Draw extends JFrame {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-//        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer(FILE1_FEATURES_FILEPATH, FILE2_FEATURES_FILEPATH);
-        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer("kubek1.png.haraff.sift", FILE2_FEATURES_FILEPATH);
+        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer(FILE1_FEATURES_FILEPATH, FILE2_FEATURES_FILEPATH);
+//        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer("kubek1.png.haraff.sift", FILE2_FEATURES_FILEPATH);
         List<Pair> allPairsMake = analyzer.makePairs();
         LOGGER.info("All pairs size {}", allPairsMake.size());
         List<Pair> consistentPairs = analyzer.getConsistentPairsAmongAllPairs(25,0.3);
