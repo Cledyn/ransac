@@ -61,4 +61,54 @@ public class Ransac {
         return params.multiply(point1Matrix);
     }
 
+    public void findClosestNeighbour(List<Point> points, Point point) {
+        double minDistance = Double.MAX_VALUE;
+        Point closestNeighbour = null;
+        for (Point neighbour : points) {
+            if (!point.equals(neighbour)) {
+                double distance = countDistanceFeatures(point, neighbour);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestNeighbour = neighbour;
+                }
+            }
+        }
+        point.setNeighbour(closestNeighbour);
+    }
+
+    public List<Pair> makePairs(List<Point> pointsOnA, List<Point> pointsOnB) {
+        List<Pair> allPairs = Lists.newArrayList();
+//        Preconditions.checkArgument(photo1.size() == photo2.size(), "Number of pointes must be the same on both lists!");
+        for (Point pointOnA : pointsOnA) {
+            setPointsNeighbours(pointsOnB, pointOnA);
+        }
+        for (Point pointOnB : pointsOnB) {
+            setPointsNeighbours(pointsOnA, pointOnB);
+        }
+
+        for (Point point : pointsOnA) {
+            if (checkIfPair(point, point.getNeighbour())) {
+                Pair newPair = new Pair(point, point.getNeighbour());
+                allPairs.add(newPair);
+            }
+        }
+        return allPairs;
+    }
+
+    private void setPointsNeighbours(List<Point> pointsOnB, Point pointOnA) {
+        findClosestNeighbour(pointsOnB, pointOnA);
+    }
+
+    public double countDistanceFeatures(Point point1, Point point2) {
+        double distance = 0;
+        for (int i = 0; i < point1.NUMBER_OF_FEATURES; i++) {
+            distance += Math.pow((point1.getFeatures()[i] - point2.getFeatures()[i]), 2);
+        }
+        return Math.sqrt(distance);
+    }
+
+    private boolean checkIfPair(Point point1, Point point2) {
+        return point1.getNeighbour().equals(point2) && point2.getNeighbour().equals(point1);
+    }
+
 }
