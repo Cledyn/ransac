@@ -125,6 +125,17 @@ public class RansacAfinic extends Ransac {
         return newPoints;
     }
 
+    public List<Pair> filterPairsFromModel(List<Pair> allPairs, RealMatrix bestModel, double maxError){
+        List<Pair> filteredPairs = Lists.newArrayList();
+        for(Pair pair : allPairs){
+            double error = modelError(pair, bestModel);
+            if(error < maxError){
+                filteredPairs.add(pair);
+            }
+        }
+        return filteredPairs;
+    }
+
     public static void testForAfinic() {
         RansacAfinic r = new RansacAfinic();
         Point p1 = new Point(92.4394, 14.3863);
@@ -163,7 +174,8 @@ public class RansacAfinic extends Ransac {
             LOGGER.info("Success!");
         }
         List<Pair> pairsBasedOnModel = getNewPairsBasedOnModel(bestModel, pairs);
-        return pairsBasedOnModel;
+        List<Pair> filteredPairs = filterPairsFromModel(pairsBasedOnModel,bestModel, maxError);
+        return filteredPairs;
     }
 
     public static void main(String[] args) throws FileNotFoundException {
