@@ -38,15 +38,18 @@ public class RansacAfinic extends Ransac {
     }
 
     public static RealMatrix getAfinicTransformVector(List<Pair> pairs) { //tu muszą być 3 pary tylko
-        LOGGER.info("List size {}",pairs.size());
+//        LOGGER.info("List size {}",pairs.size());
         RealMatrix matrix = prepareAfilicMatrix(pairs);
-        LOGGER.info("Matrix size:  rows{}, columns",matrix.getRowDimension(),matrix.getColumnDimension());
+//        LOGGER.info("Matrix size:  rows{}, columns",matrix.getRowDimension(),matrix.getColumnDimension());
         RealMatrix vector = prepareVector(pairs);
-        LOGGER.info("Vector size:  rows{}, columns",vector.getRowDimension(),vector.getColumnDimension());
+//        LOGGER.info("Vector size:  rows{}, columns",vector.getRowDimension(),vector.getColumnDimension());
         return getTransform(matrix, vector);
     }
 
     public static RealMatrix getAfinicTransformParamsAsMatrix(RealMatrix afinicTransformVector) {
+        if (afinicTransformVector == null) {
+            return null;
+        }
         double[][] afilicParams = new double[PARAMETER_MATRIX_DIMENSION][];
         int counter = 0;
         afilicParams[0] = new double[]{afinicTransformVector.getRow(counter)[0], afinicTransformVector.getRow(counter + 1)[0], afinicTransformVector.getRow(counter + 2)[0]};
@@ -55,12 +58,12 @@ public class RansacAfinic extends Ransac {
         return new Array2DRowRealMatrix(afilicParams);
     }
 
-    public RealMatrix ransac(int iterationNo, List<Pair> pairs, int maxError) {
+    public RealMatrix ransac(int iterationNo, List<Pair> pairs, double maxError) {
         {
             RealMatrix bestModel = null;
-            RealMatrix model = null;
+            RealMatrix model;
             int bestScore = 0;
-            boolean modelFound = false;
+            boolean modelFound;
             for (int i = 0; i < iterationNo; i++) {
                 model = null;
                 modelFound = false;
@@ -68,6 +71,7 @@ public class RansacAfinic extends Ransac {
                     List<Pair> chosenPairs = takeRandomPairs(pairs, 3);
                     model = calculateModel(chosenPairs);
                     if (model != null) {
+                        LOGGER.info("found model!");
                         modelFound = true;
                     }
                 }
@@ -96,8 +100,9 @@ public class RansacAfinic extends Ransac {
 
     //wynik tego idzie jako argument do modelerror
     private RealMatrix calculateModel(List<Pair> chosenPairs) {
-        RealMatrix vector = getAfinicTransformVector(chosenPairs);
-        return getAfinicTransformParamsAsMatrix(vector);
+//        LOGGER.info("Pairs {}", chosenPairs.size());
+        RealMatrix vector = RansacAfinic.getAfinicTransformVector(chosenPairs);
+        return RansacAfinic.getAfinicTransformParamsAsMatrix(vector);
     }
 
     //no nie wiem, czy tworzenie nowego obiektu bez sensu jest tu potrzebne...
@@ -109,6 +114,15 @@ public class RansacAfinic extends Ransac {
 
     public static double countDistance(Point point1, Point point2) {
         return Math.sqrt(Math.pow((point1.getX() - point2.getX()), 2) + Math.pow((point1.getY() - point2.getY()), 2));
+    }
+
+    private List<Pair> getNewPairsBasedOnModel(RealMatrix bestModel, List<Pair> pairs) {
+        List<Pair> newPoints = Lists.newArrayList();
+        for (Pair pair : pairs) {
+            Point calculated = calculatePoint(bestModel, pair.getPoint1());
+            newPoints.add(new Pair(pair.getPoint1(), calculated));
+        }
+        return newPoints;
     }
 
     public static void testForAfinic() {
@@ -139,21 +153,23 @@ public class RansacAfinic extends Ransac {
         LOGGER.info("coord3 {}", coord3.toString());
     }
 
-    private  void run(String file1, String file2) throws FileNotFoundException {
+
+    public List<Pair> run(String file1, String file2, int iterationNo, double maxError) throws FileNotFoundException {
         List<Point> pointsOnA = FeaturesParser.parseFeatures(ImgSizeRetriever.class.getClassLoader().getResource(file1).getFile(), 0);
         List<Point> pointsOnB = FeaturesParser.parseFeatures(ImgSizeRetriever.class.getClassLoader().getResource(file2).getFile(), 1);
         List<Pair> pairs = makePairs(pointsOnA, pointsOnB);
-        RealMatrix bestModel = ransac(2, pairs, 10);
-        if(bestModel!=null){
+        RealMatrix bestModel = ransac(iterationNo, pairs, maxError);
+        if (bestModel != null) {
             LOGGER.info("Success!");
         }
+        List<Pair> pairsBasedOnModel = getNewPairsBasedOnModel(bestModel, pairs);
+        return pairsBasedOnModel;
     }
+
     public static void main(String[] args) throws FileNotFoundException {
 //        testForAfinic();
-       new RansacAfinic().run("d1.png.haraff.sift","d2.png.haraff.sift");
+        new RansacAfinic().run("d1.png.haraff.sift", "d2.png.haraff.sift",2,1);
     }
-
-
 
 
 }

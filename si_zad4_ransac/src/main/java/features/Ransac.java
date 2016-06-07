@@ -6,6 +6,7 @@ import model.Point;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.SingularMatrixException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,8 @@ public class Ransac {
         int pairsNo = pairs.size();
         List<Pair> chosen = Lists.newArrayList();
         for (int i = 0; i < pairsToTake; i++) {
-            int index = (int) r.nextDouble() * pairsNo;
+            int index = (int) (r.nextDouble() * pairsNo);
+//            LOGGER.info("Index"+i+" "+index);
             chosen.add(pairs.get(index));
         }
         return chosen;
@@ -47,7 +49,13 @@ public class Ransac {
     }
 
     public static RealMatrix getTransform(RealMatrix matrix, RealMatrix vector) {
-        RealMatrix matrixInverted = new LUDecomposition(matrix).getSolver().getInverse();
+        RealMatrix matrixInverted;
+        try {
+            matrixInverted = new LUDecomposition(matrix).getSolver().getInverse();
+        } catch (SingularMatrixException ex) {
+            LOGGER.debug("Singular matrix! Return null");
+            return null;
+        }
         return matrixInverted.multiply(vector);
     }
 
@@ -59,6 +67,14 @@ public class Ransac {
     public RealMatrix calculateCoordinatesForOtherPic(RealMatrix params, Point point1) {
         RealMatrix point1Matrix = getPointAsVector(point1);
         return params.multiply(point1Matrix);
+    }
+
+    public Point getPointFromMatrix(RealMatrix matrix){
+        return new Point(matrix.getRow(0)[0],matrix.getRow(1)[0]);
+    }
+
+    public Point calculatePoint(RealMatrix params, Point point1){
+        return getPointFromMatrix(calculateCoordinatesForOtherPic(params,point1));
     }
 
     public void findClosestNeighbour(List<Point> points, Point point) {

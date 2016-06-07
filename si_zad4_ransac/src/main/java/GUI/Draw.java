@@ -1,12 +1,13 @@
 package GUI;
 
 import com.google.common.collect.Lists;
-import features.NeighbourhoodAnalyzer;
+import features.RansacAfinic;
 import model.Pair;
 import model.Photo;
 import model.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.ImgSizeRetriever;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -28,11 +29,11 @@ public class Draw extends JFrame {
     private static Logger LOGGER = LoggerFactory.getLogger(Draw.class);
     private Photo photo1;
     private Photo photo2;
-    private final static String FILE1_FEATURES_FILEPATH = "F:\\PWr\\VI_SEMESTR\\SIiW\\RANSAC\\ransac\\si_zad4_ransac\\src\\main\\resources\\test1kubek\\kubek1.png.haraff.sift";
-    private final static String FILE2_FEATURES_FILEPATH = "F:\\PWr\\VI_SEMESTR\\SIiW\\RANSAC\\ransac\\si_zad4_ransac\\src\\main\\resources\\test1kubek\\kubek2.png.haraff.sift";
+    private final static String FILE1_FEATURES_FILEPATH = ImgSizeRetriever.class.getClassLoader().getResource("k1.png.haraff.sift").getFile();
+    private final static String FILE2_FEATURES_FILEPATH = ImgSizeRetriever.class.getClassLoader().getResource("k2.png.haraff.sift").getFile();
     private final static Color[] COLORS = {Color.ORANGE, Color.GRAY, Color.GREEN, Color.RED, Color.BLACK, Color.BLUE, Color.MAGENTA, Color.white};
     private final static Random rnd = new Random();
-    public static int xShift = 640;
+    public static int xShift = 400;
 
     public Draw(String title) throws HeadlessException, FileNotFoundException {
         super(title);
@@ -47,6 +48,7 @@ public class Draw extends JFrame {
         this.photo1 = photo1;
         this.photo2 = photo2;
     }
+
     // wspolrzedne trzeba wyznaczac wzgledem gornego lewego wierzcholka
     public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
@@ -97,26 +99,42 @@ public class Draw extends JFrame {
             Point snd = shiftedPair.getPoint2();
             double oldX = snd.getX();
             snd.setX(oldX + xShift + 10);
+//            snd.setX(oldX + 10);
             snd.setY(snd.getY() + 10);
         }
         return shiftedPoints;
 
     }
 
+//    public static void main(String[] args) throws FileNotFoundException {
+//        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer(FILE1_FEATURES_FILEPATH, FILE2_FEATURES_FILEPATH);
+////        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer("kubek1.png.haraff.sift", FILE2_FEATURES_FILEPATH);
+//        List<Pair> allPairsMake = analyzer.makePairs();
+//        LOGGER.info("All pairs size {}", allPairsMake.size());
+//        List<Pair> consistentPairs = analyzer.getConsistentPairsAmongAllPairs(50,0.50);
+//        List<Pair> allPairs = Draw.moveSdPointCoordinates(consistentPairs);
+//        Photo ph1 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("k1.png").getFile()),
+//                null, allPairs);
+//        Photo ph2 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("k2.png").getFile()),
+//                null, allPairs);
+//        Draw draw = new Draw("test");
+//        draw.setPhoto1(ph1);
+//        draw.setPhoto2(ph2);
+//
+//    }
+
     public static void main(String[] args) throws FileNotFoundException {
-        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer(FILE1_FEATURES_FILEPATH, FILE2_FEATURES_FILEPATH);
-//        NeighbourhoodAnalyzer analyzer = new NeighbourhoodAnalyzer("kubek1.png.haraff.sift", FILE2_FEATURES_FILEPATH);
-        List<Pair> allPairsMake = analyzer.makePairs();
-        LOGGER.info("All pairs size {}", allPairsMake.size());
-        List<Pair> consistentPairs = analyzer.getConsistentPairsAmongAllPairs(25,0.3);
-        List<Pair> allPairs = Draw.moveSdPointCoordinates(consistentPairs);
-        Photo ph1 = new Photo(new File("F:\\PWr\\VI_SEMESTR\\SIiW\\RANSAC\\ransac\\si_zad4_ransac\\src\\main\\resources\\test1kubek\\kubek1.png"),
+        RansacAfinic ransacAfinic = new RansacAfinic();
+        List<Pair> ransacPairs = ransacAfinic.run("k1.png.haraff.sift", "k2.png.haraff.sift", 100, 0.1);
+        List<Pair> allPairs = Draw.moveSdPointCoordinates(ransacPairs);
+        Photo ph1 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("k1.png").getFile()),
                 null, allPairs);
-        Photo ph2 = new Photo(new File("F:\\PWr\\VI_SEMESTR\\SIiW\\RANSAC\\ransac\\si_zad4_ransac\\src\\main\\resources\\test1kubek\\kubek2.png"),
+        Photo ph2 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("k2.png").getFile()),
                 null, allPairs);
         Draw draw = new Draw("test");
         draw.setPhoto1(ph1);
         draw.setPhoto2(ph2);
 
     }
+
 }
