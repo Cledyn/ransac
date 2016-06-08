@@ -147,7 +147,7 @@ public class Ransac {
         for(Pair pair : allPairs){
             double error = countDistance(pair.getPoint1().getNeighbour(), pair.getPoint2());
             if(error < maxError){
-                LOGGER.info("pair error : {}", error);
+//                LOGGER.info("pair error : {}", error);
                 filteredPairs.add(pair);
             }
         }

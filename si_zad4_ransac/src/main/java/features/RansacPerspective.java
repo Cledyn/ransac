@@ -66,7 +66,7 @@ public class RansacPerspective extends Ransac {
                     List<Pair> chosenPairs = takeRandomPairs(pairs, 4);
                     model = calculateModel(chosenPairs);
                     if (model != null) {
-                        LOGGER.info("found model!");
+//                        LOGGER.info("found model!");
                         modelFound = true;
                     }
                 }
@@ -149,6 +149,7 @@ public class RansacPerspective extends Ransac {
     }
 
     public List<Pair> run(String file1, String file2, int iterationNo, double maxError) throws FileNotFoundException {
+        Long time = System.currentTimeMillis();
         List<Point> pointsOnA = FeaturesParser.parseFeatures(ImgSizeRetriever.class.getClassLoader().getResource(file1).getFile(), 0);
         List<Point> pointsOnB = FeaturesParser.parseFeatures(ImgSizeRetriever.class.getClassLoader().getResource(file2).getFile(), 1);
         List<Pair> pairs = makePairs(pointsOnA, pointsOnB);
@@ -163,6 +164,8 @@ public class RansacPerspective extends Ransac {
         LOGGER.info("pairs based on model : {}", pairsBasedOnModel.size());
         List<Pair> filteredPairs = filterPairsFromModel(pairsBasedOnModel, maxError);
         LOGGER.info("pairs filtered : {}", filteredPairs.size());
+        time = System.currentTimeMillis() - time;
+        LOGGER.info("TIME of ransac: {}", time);
         return filteredPairs;
     }
 
