@@ -1,6 +1,6 @@
 package GUI;
 
-import features.RansacPerspective;
+import features.RansacAfinic;
 import model.Pair;
 import model.Photo;
 import org.slf4j.Logger;
@@ -27,8 +27,8 @@ public class Draw extends JFrame {
     private static Logger LOGGER = LoggerFactory.getLogger(Draw.class);
     private Photo photo1;
     private Photo photo2;
-    private final static String FILE1_FEATURES_FILEPATH = ImgSizeRetriever.class.getClassLoader().getResource("kubek1.png.haraff.sift").getFile();
-    private final static String FILE2_FEATURES_FILEPATH = ImgSizeRetriever.class.getClassLoader().getResource("kubek2.png.haraff.sift").getFile();
+    private final static String FILE1_FEATURES_FILEPATH = ImgSizeRetriever.class.getClassLoader().getResource("b1.png.haraff.sift").getFile();
+    private final static String FILE2_FEATURES_FILEPATH = ImgSizeRetriever.class.getClassLoader().getResource("b2.png.haraff.sift").getFile();
     private final static Color[] COLORS = {Color.ORANGE, Color.GRAY, Color.GREEN, Color.RED, Color.BLACK, Color.BLUE, Color.MAGENTA, Color.white};
     private final static Random rnd = new Random();
     public static final int EDGE_WIDTH = 10;
@@ -60,30 +60,33 @@ public class Draw extends JFrame {
             System.out.println("unable to read photo");
             e.printStackTrace();
         }
+        int width = image.getWidth();
+        int height = image.getHeight();
+
         g2.drawImage(image, EDGE_WIDTH, EDGE_WIDTH, this);
         g2.drawImage(image2, image.getWidth()+ EDGE_WIDTH, EDGE_WIDTH, this);
 //        LOGGER.info("Image size {} x {}", image.getWidth(), image.getHeight());
-        g2.drawImage(image, EDGE_WIDTH, image.getHeight()+ EDGE_WIDTH, this);
-        g2.drawImage(image2, image.getWidth()+ EDGE_WIDTH, image.getHeight()+ EDGE_WIDTH, this);
-        this.setSize(image.getWidth() + image.getWidth(), image.getHeight() * 2);
+//        g2.drawImage(image, EDGE_WIDTH, image.getHeight()+ EDGE_WIDTH, this);
+//        g2.drawImage(image2, image.getWidth()+ EDGE_WIDTH, image.getHeight()+ EDGE_WIDTH, this);
+        this.setSize(image.getWidth() + image.getWidth(), image.getHeight());
         paintLines(g2, image.getWidth(), image.getHeight());
     }
 
 
     private void paintLines(Graphics2D g2, int xShift, int yShift) {
-        paintPairs(g2, photo1.getPairs(), xShift, 0);
-        paintPairs(g2, photo1.getFiltered_pairs(), xShift, yShift);
+        paintPairs(g2, photo1.getPairs(), xShift, 0, Color.LIGHT_GRAY);
+        paintPairs(g2, photo1.getFiltered_pairs(), xShift, 0, Color.BLUE);
     }
 
-    private void paintPairs(Graphics2D g2, List<Pair> pairs, int xShift, int yShift){
+    private void paintPairs(Graphics2D g2, List<Pair> pairs, int xShift, int yShift, Color color){
         for (Pair pair : pairs) {
             double x1 = pair.getPoint1().getX() + EDGE_WIDTH;
             double x2 = pair.getPoint2().getX() + xShift + EDGE_WIDTH;
             double y1 = pair.getPoint1().getY() + yShift + EDGE_WIDTH;
             double y2 = pair.getPoint2().getY() + yShift + EDGE_WIDTH;
             Shape line = new Line2D.Double(x1, y1, x2, y2);
-            int colorInd = (int) Math.floor(rnd.nextDouble() * COLORS.length);
-            g2.setColor(COLORS[colorInd]);
+//            int colorInd = (int) Math.floor(rnd.nextDouble() * COLORS.length);
+            g2.setColor(color);
             g2.draw(line);
         }
     }
@@ -113,13 +116,13 @@ public class Draw extends JFrame {
     }*/
 
     public static void main(String[] args) throws FileNotFoundException {
-        RansacPerspective ransac = new RansacPerspective();
-        List<Pair> ransacPairs = ransac.run("kubek1.png.haraff.sift", "kubek2.png.haraff.sift", 2000, 10);
+        RansacAfinic ransac = new RansacAfinic();
+        List<Pair> ransacPairs = ransac.run("b1.png.haraff.sift", "b2.png.haraff.sift", 2000, 10);
         LOGGER.info("Found pairs : {}", ransac.getAllPairs().size());
         LOGGER.info("Filtered pairs : {}", ransacPairs.size());
-        Photo ph1 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("kubek1.png").getFile()),
+        Photo ph1 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("b1.png").getFile()),
                 null, ransac.getAllPairs(), ransacPairs);
-        Photo ph2 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("kubek2.png").getFile()),
+        Photo ph2 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("b2.png").getFile()),
                 null, ransac.getAllPairs(), ransacPairs);
         Draw draw = new Draw("test");
         draw.setPhoto1(ph1);
