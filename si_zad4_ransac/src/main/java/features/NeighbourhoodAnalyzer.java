@@ -154,7 +154,7 @@ public class NeighbourhoodAnalyzer {
 
             if ((double) matchingPointsInNeighbourhood / numberOfNeighbours >= consistencyLimit) {
                 LOGGER.info("Consistent pair found!");
-                consistentPairs.add(pair);
+                consistentPairs.add(new Pair(pair.getPoint1().copyWithNeighbours(), pair.getPoint2().copyWithNeighbours()));
             }
         }
         LOGGER.info("FOUND PAIRS {}", consistentPairs.size());

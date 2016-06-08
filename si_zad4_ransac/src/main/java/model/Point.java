@@ -49,6 +49,18 @@ public class Point {
         this.photoNo = photoNo;
     }
 
+    public Point(double x, double y, int[] features, Point neighbour, int photoNo, List<Point> neighbourhood) {
+        this(x, y, features, photoNo);
+        this.neighbour = neighbour;
+        this.neighbourhood = neighbourhood;
+    }
+
+    public Point copyWithNeighbours(){
+        return new Point(x, y, features, neighbour, photoNo, neighbourhood);
+    }
+    public Point copy(){
+        return new Point(x, y, features, photoNo);
+    }
 
     @Override
     public boolean equals(Object obj) {

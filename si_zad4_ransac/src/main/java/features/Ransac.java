@@ -10,6 +10,7 @@ import org.apache.commons.math3.linear.SingularMatrixException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -22,7 +23,11 @@ public class Ransac {
     private static Logger LOGGER = LoggerFactory.getLogger(Ransac.class);
     protected static final int PARAMETER_MATRIX_DIMENSION = 3;
     Random r = new Random();
+    protected List<Pair> allPairs = new ArrayList<>();
 
+    public List<Pair> getAllPairs() {
+        return allPairs;
+    }
 
     protected List<Pair> takeRandomPairs(List<Pair> pairs, int pairsToTake) {
         int pairsNo = pairs.size();
@@ -125,6 +130,28 @@ public class Ransac {
 
     private boolean checkIfPair(Point point1, Point point2) {
         return point1.getNeighbour().equals(point2) && point2.getNeighbour().equals(point1);
+    }
+
+    protected static double countDistance(Point point1, Point point2) {
+        return Math.sqrt(Math.pow((point1.getX() - point2.getX()), 2) + Math.pow((point1.getY() - point2.getY()), 2));
+    }
+
+    protected void saveAllPairs(List<Pair> pairs){
+        for (Pair pair:pairs){
+            allPairs.add(new Pair(pair.getPoint1().copyWithNeighbours(), pair.getPoint2().copyWithNeighbours()));
+        }
+    }
+
+    protected List<Pair> filterPairsFromModel(List<Pair> allPairs, double maxError){
+        List<Pair> filteredPairs = Lists.newArrayList();
+        for(Pair pair : allPairs){
+            double error = countDistance(pair.getPoint1().getNeighbour(), pair.getPoint2());
+            if(error < maxError){
+                LOGGER.info("pair error : {}", error);
+                filteredPairs.add(pair);
+            }
+        }
+        return filteredPairs;
     }
 
 }

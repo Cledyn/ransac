@@ -8,15 +8,17 @@ public class Photo {
     private File filePath;
     private List<Point> points;
     private List<Pair> pairs;
+    private List<Pair> filtered_pairs;
 
     public Photo(File filePath, List<Point> points) {
         this.filePath = filePath;
         this.points = points;
     }
 
-    public Photo(File filePath, List<Point> points, List<Pair> pairs) {
+    public Photo(File filePath, List<Point> points, List<Pair> pairs, List<Pair> filtered_pairs) {
         this(filePath, points);
         this.pairs = pairs;
+        this.filtered_pairs = filtered_pairs;
     }
 
     public File getFilePath() {
@@ -41,5 +43,9 @@ public class Photo {
 
     public void setPairs(List<Pair> pairs) {
         this.pairs = pairs;
+    }
+
+    public List<Pair> getFiltered_pairs() {
+        return filtered_pairs;
     }
 }
