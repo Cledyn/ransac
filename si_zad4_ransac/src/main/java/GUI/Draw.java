@@ -1,6 +1,7 @@
 package GUI;
 
 import features.RansacAfinic;
+import features.RansacPerspective;
 import model.Pair;
 import model.Photo;
 import org.slf4j.Logger;
@@ -75,7 +76,7 @@ public class Draw extends JFrame {
 
     private void paintLines(Graphics2D g2, int xShift, int yShift) {
         paintPairs(g2, photo1.getPairs(), xShift, 0, Color.LIGHT_GRAY);
-        paintPairs(g2, photo1.getFiltered_pairs(), xShift, 0, Color.BLUE);
+        paintPairs(g2, photo1.getFiltered_pairs(), xShift, 0, Color.RED);
     }
 
     private void paintPairs(Graphics2D g2, List<Pair> pairs, int xShift, int yShift, Color color){
@@ -116,8 +117,9 @@ public class Draw extends JFrame {
     }*/
 
     public static void main(String[] args) throws FileNotFoundException {
-        RansacAfinic ransac = new RansacAfinic();
-        List<Pair> ransacPairs = ransac.run("b1.png.haraff.sift", "b2.png.haraff.sift", 2000, 10);
+//        RansacAfinic ransac = new RansacAfinic();
+        RansacPerspective ransac = new RansacPerspective();
+        List<Pair> ransacPairs = ransac.run("b1.png.haraff.sift", "b2.png.haraff.sift", 100000, 5);
         LOGGER.info("Found pairs : {}", ransac.getAllPairs().size());
         LOGGER.info("Filtered pairs : {}", ransacPairs.size());
         Photo ph1 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("b1.png").getFile()),

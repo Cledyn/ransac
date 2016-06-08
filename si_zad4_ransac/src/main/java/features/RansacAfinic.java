@@ -71,7 +71,7 @@ public class RansacAfinic extends Ransac {
                     List<Pair> chosenPairs = takeRandomPairs(pairs, 3);
                     model = calculateModel(chosenPairs);
                     if (model != null) {
-//                        LOGGER.info("found model!");
+                        LOGGER.info("found model!");
                         modelFound = true;
                     }
                 }

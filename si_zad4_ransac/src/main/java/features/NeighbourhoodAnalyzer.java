@@ -25,6 +25,7 @@ public class NeighbourhoodAnalyzer {
     private List<Point> photo1;
     private List<Point> photo2;
     private List<Pair> allPairs;
+//    private String [] features = {}
 
     public NeighbourhoodAnalyzer(String filePathToFeaturesPic0, String filePathToFeaturesPic1) throws FileNotFoundException {
         LOGGER.info("Parsing images data...");
