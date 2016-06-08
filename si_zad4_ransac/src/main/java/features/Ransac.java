@@ -58,7 +58,7 @@ public class Ransac {
         try {
             matrixInverted = new LUDecomposition(matrix).getSolver().getInverse();
         } catch (SingularMatrixException ex) {
-            LOGGER.debug("Singular matrix! Return null");
+//            LOGGER.debug("Singular matrix! Return null");
             return null;
         }
         return matrixInverted.multiply(vector);

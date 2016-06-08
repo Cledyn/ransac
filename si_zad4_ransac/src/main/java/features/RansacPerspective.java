@@ -29,10 +29,10 @@ public class RansacPerspective extends Ransac {
         double[][] firstPointsMatrix = new double[pairs.size() * 2][];
         for (int i = 0; i < firstPointsMatrix.length; i++) {
             if (i < pairs.size()) {
-                firstPointsMatrix[i] = new double[]{pairs.get(i).getPoint1().getX(), pairs.get(i).getPoint1().getY(), 1, 0, 0, 0, -pairs.get(i).getPoint2().getX() * pairs.get(i).getPoint1().getX(), -pairs.get(i).getPoint2().getY() * pairs.get(i).getPoint1().getY()};
+                firstPointsMatrix[i] = new double[]{pairs.get(i).getPoint1().getX(), pairs.get(i).getPoint1().getY(), 1, 0, 0, 0, -pairs.get(i).getPoint2().getX() * pairs.get(i).getPoint1().getX(), -pairs.get(i).getPoint2().getX() * pairs.get(i).getPoint1().getY()};
             } else {
                 int currIndex = i - pairs.size();
-                firstPointsMatrix[i] = new double[]{0, 0, 0, pairs.get(currIndex).getPoint1().getX(), pairs.get(currIndex).getPoint1().getY(), 1, -pairs.get(currIndex).getPoint2().getY() * pairs.get(currIndex).getPoint1().getX(), -pairs.get(currIndex).getPoint2().getY() * pairs.get(currIndex).getPoint1().getX()};
+                firstPointsMatrix[i] = new double[]{0, 0, 0, pairs.get(currIndex).getPoint1().getX(), pairs.get(currIndex).getPoint1().getY(), 1, -pairs.get(currIndex).getPoint2().getY() * pairs.get(currIndex).getPoint1().getX(), -pairs.get(currIndex).getPoint2().getY() * pairs.get(currIndex).getPoint1().getY()};
             }
         }
         return new Array2DRowRealMatrix(firstPointsMatrix);
@@ -47,6 +47,7 @@ public class RansacPerspective extends Ransac {
     public static RealMatrix getPerspectiveTransformParamsAsMatrix(RealMatrix perspectiveTransformVector) {
         double[][] perspectiveParams = new double[PARAMETER_MATRIX_DIMENSION][];
         int counter = 0;
+//        LOGGER.info("PerspectiveTransformVector size: rows: {}, columns: {}", perspectiveTransformVector.getRowDimension(), perspectiveTransformVector.getColumnDimension());
         perspectiveParams[0] = new double[]{perspectiveTransformVector.getRow(counter)[0], perspectiveTransformVector.getRow(counter + 1)[0], perspectiveTransformVector.getRow(counter + 2)[0]};
         perspectiveParams[1] = new double[]{perspectiveTransformVector.getRow(counter + 3)[0], perspectiveTransformVector.getRow(counter + 4)[0], perspectiveTransformVector.getRow(counter + 5)[0]};
         perspectiveParams[2] = new double[]{perspectiveTransformVector.getRow(counter + 6)[0], perspectiveTransformVector.getRow(counter + 7)[0], 1};
@@ -97,7 +98,7 @@ public class RansacPerspective extends Ransac {
     private RealMatrix calculateModel(List<Pair> chosenPairs) {
 //        LOGGER.info("Pairs {}", chosenPairs.size());
         RealMatrix vector = RansacPerspective.getPerspectiveTransformVector(chosenPairs);
-        return RansacPerspective.getPerspectiveTransformParamsAsMatrix(vector);
+        return vector == null ? null : getPerspectiveTransformParamsAsMatrix(vector);
     }
 
     //no nie wiem, czy tworzenie nowego obiektu bez sensu jest tu potrzebne...
@@ -115,7 +116,13 @@ public class RansacPerspective extends Ransac {
         }
         return newPoints;
     }
+    public Point getPointFromMatrix(RealMatrix matrix){
+        return new Point(matrix.getRow(0)[0]/matrix.getRow(2)[0],matrix.getRow(1)[0]/matrix.getRow(2)[0]);
+    }
 
+    public Point calculatePoint(RealMatrix params, Point point1){
+        return getPointFromMatrix(calculateCoordinatesForOtherPic(params,point1));
+    }
     public static void testForPerspective(){
 
         RansacPerspective r = new RansacPerspective();
@@ -140,12 +147,13 @@ public class RansacPerspective extends Ransac {
         LOGGER.info("Vector {}", vector.toString());
         RealMatrix params = RansacPerspective.getPerspectiveTransformParamsAsMatrix(vector);
         LOGGER.info("Params {}", params.toString());
-        RealMatrix coord = r.calculateCoordinatesForOtherPic(params, p3);
+        RealMatrix coord = r.calculateCoordinatesForOtherPic(params, p1);
         LOGGER.info("coord {}", coord.toString());
     }
 
     public static void main(String[] args) {
-        testForPerspective();
+//        testForPerspective();
+//        run()''
     }
 
     public List<Pair> run(String file1, String file2, int iterationNo, double maxError) throws FileNotFoundException {
