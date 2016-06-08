@@ -10,6 +10,7 @@ import org.apache.commons.math3.linear.SingularMatrixException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -22,7 +23,11 @@ public class Ransac {
     private static Logger LOGGER = LoggerFactory.getLogger(Ransac.class);
     protected static final int PARAMETER_MATRIX_DIMENSION = 3;
     Random r = new Random();
+    protected List<Pair> allPairs = new ArrayList<>();
 
+    public List<Pair> getAllPairs() {
+        return allPairs;
+    }
 
     protected List<Pair> takeRandomPairs(List<Pair> pairs, int pairsToTake) {
         int pairsNo = pairs.size();

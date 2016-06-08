@@ -128,8 +128,9 @@ public class RansacAfinic extends Ransac {
     public List<Pair> filterPairsFromModel(List<Pair> allPairs, RealMatrix bestModel, double maxError){
         List<Pair> filteredPairs = Lists.newArrayList();
         for(Pair pair : allPairs){
-            double error = modelError(pair, bestModel);
+            double error = countDistance(pair.getPoint1(), pair.getPoint2());
             if(error < maxError){
+                LOGGER.info("pair error : {}", error);
                 filteredPairs.add(pair);
             }
         }
@@ -164,17 +165,28 @@ public class RansacAfinic extends Ransac {
         LOGGER.info("coord3 {}", coord3.toString());
     }
 
+    private void saveAllPairs(List<Pair> pairs){
+        for (Pair pair:pairs){
+            allPairs.add(new Pair(pair.getPoint1().copyWithNeighbours(), pair.getPoint2().copyWithNeighbours()));
+        }
+    }
+
 
     public List<Pair> run(String file1, String file2, int iterationNo, double maxError) throws FileNotFoundException {
         List<Point> pointsOnA = FeaturesParser.parseFeatures(ImgSizeRetriever.class.getClassLoader().getResource(file1).getFile(), 0);
         List<Point> pointsOnB = FeaturesParser.parseFeatures(ImgSizeRetriever.class.getClassLoader().getResource(file2).getFile(), 1);
         List<Pair> pairs = makePairs(pointsOnA, pointsOnB);
+        saveAllPairs(pairs);
+
+        LOGGER.info("pairs : {}", pairs.size());
         RealMatrix bestModel = ransac(iterationNo, pairs, maxError);
         if (bestModel != null) {
             LOGGER.info("Success!");
         }
         List<Pair> pairsBasedOnModel = getNewPairsBasedOnModel(bestModel, pairs);
+        LOGGER.info("pairs based on model : {}", pairsBasedOnModel.size());
         List<Pair> filteredPairs = filterPairsFromModel(pairsBasedOnModel,bestModel, maxError);
+        LOGGER.info("pairs filtered : {}", filteredPairs.size());
         return filteredPairs;
     }
 
