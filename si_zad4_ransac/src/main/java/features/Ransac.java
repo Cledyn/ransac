@@ -24,6 +24,9 @@ public class Ransac {
     protected static final int PARAMETER_MATRIX_DIMENSION = 3;
     Random r = new Random();
     protected List<Pair> allPairs = new ArrayList<>();
+    protected static final double HEURISTIC_MIN = 1;
+    protected static final double HEURISTIC_MAX = 10;
+
 
     public List<Pair> getAllPairs() {
         return allPairs;
@@ -38,7 +41,39 @@ public class Ransac {
             chosen.add(pairs.get(index));
         }
         return chosen;
+    }
 
+    protected List<Pair> takeHeuriticPairs(List<Pair> pairs, int pairsToTake) {
+        int pairsNo = pairs.size();
+        List<Pair> chosen = Lists.newArrayList();
+        for (int i = 0; i < pairsToTake; i++) {
+            int index = (int) (r.nextDouble() * pairsNo);
+//            LOGGER.info("Index"+i+" "+index);
+            if(chosen.size()==0){
+                chosen.add(pairs.get(index));
+            }
+            else {
+                double distancePoints1;
+                double distancePoints2;
+                do {
+                    distancePoints1 = countDistance(pairs.get(0).getPoint1(), pairs.get(index).getPoint1());
+                    distancePoints2 = countDistance(pairs.get(0).getPoint2(), pairs.get(index).getPoint2());
+                    index = (int) (r.nextDouble() * pairsNo);
+//                    LOGGER.info("Distance 1 : {}, Distance 2: {}", distancePoints1, distancePoints2);
+
+                }while (!checkHeuristicCondition(distancePoints1, distancePoints2));
+                chosen.add(pairs.get(index));
+            }
+        }
+        return chosen;
+    }
+
+    private boolean checkHeuristicCondition(double point1Dist, double point2Dist){
+        return checkHeuristicForPoint(point1Dist) && checkHeuristicForPoint(point2Dist);
+    }
+
+    private boolean checkHeuristicForPoint(double distance){
+        return distance<(HEURISTIC_MAX*HEURISTIC_MAX) && distance>(HEURISTIC_MIN*HEURISTIC_MIN);
     }
 
     protected static RealMatrix prepareVector(List<Pair> pairs) {

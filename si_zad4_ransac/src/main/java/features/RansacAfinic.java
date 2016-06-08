@@ -68,7 +68,7 @@ public class RansacAfinic extends Ransac {
                 model = null;
                 modelFound = false;
                 while (!modelFound) {
-                    List<Pair> chosenPairs = takeRandomPairs(pairs, 3);
+                    List<Pair> chosenPairs = takeHeuriticPairs(pairs, 3);
                     model = calculateModel(chosenPairs);
                     if (model != null) {
                         LOGGER.info("found model!");
