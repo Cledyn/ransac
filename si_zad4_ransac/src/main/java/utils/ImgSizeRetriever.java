@@ -34,7 +34,7 @@ public class ImgSizeRetriever {
     }
 
     public static void main(String[] args) throws MalformedURLException {
-        int [] img = ImgSizeRetriever.getImgSize("D:\\Studenckie\\sem6\\projects\\ransac\\si_zad4_ransac\\src\\main\\resources\\wypijmy.png");
+        int [] img = ImgSizeRetriever.getImgSize("D:\\Studenckie\\sem6\\projects\\ransacAfinic\\si_zad4_ransac\\src\\main\\resources\\wypijmy.png");
         System.out.println(String.format("Height %s, width %s",img[0], img[1]));
     }
 }

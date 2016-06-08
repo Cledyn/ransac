@@ -7,7 +7,10 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import parser.FeaturesParser;
+import utils.ImgSizeRetriever;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 /**
@@ -50,6 +53,69 @@ public class RansacPerspective extends Ransac {
         return new Array2DRowRealMatrix(perspectiveParams);
     }
 
+    public RealMatrix ransacPerspective(int iterationNo, List<Pair> pairs, double maxError) {
+        {
+            RealMatrix bestModel = null;
+            RealMatrix model;
+            int bestScore = 0;
+            boolean modelFound;
+            for (int i = 0; i < iterationNo; i++) {
+                model = null;
+                modelFound = false;
+                while (!modelFound) {
+                    List<Pair> chosenPairs = takeRandomPairs(pairs, 4);
+                    model = calculateModel(chosenPairs);
+                    if (model != null) {
+                        LOGGER.info("found model!");
+                        modelFound = true;
+                    }
+                }
+                int score = calculateScore(pairs, model, maxError);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestModel = model;
+                }
+            }
+            return bestModel;
+        }
+    }
+
+    private int calculateScore(List<Pair> pairs, RealMatrix model, double maxError) {
+
+        int score = 0;
+        for (Pair pair : pairs) {
+            double error = modelError(pair, model);
+            if (error < maxError) {
+                score++;
+            }
+        }
+        return score;
+    }
+
+
+    //wynik tego idzie jako argument do modelerror
+    private RealMatrix calculateModel(List<Pair> chosenPairs) {
+//        LOGGER.info("Pairs {}", chosenPairs.size());
+        RealMatrix vector = RansacPerspective.getPerspectiveTransformVector(chosenPairs);
+        return RansacPerspective.getPerspectiveTransformParamsAsMatrix(vector);
+    }
+
+    //no nie wiem, czy tworzenie nowego obiektu bez sensu jest tu potrzebne...
+    private double modelError(Pair pair, RealMatrix model) {
+        RealMatrix calculatedPoint2ToPair = calculateCoordinatesForOtherPic(model, pair.getPoint1());
+        Point calculated = new Point(calculatedPoint2ToPair.getRow(0)[0], calculatedPoint2ToPair.getRow(1)[0]);
+        return countDistance(pair.getPoint2(), calculated);
+    }
+
+    private List<Pair> getNewPairsBasedOnModel(RealMatrix bestModel, List<Pair> pairs) {
+        List<Pair> newPoints = Lists.newArrayList();
+        for (Pair pair : pairs) {
+            Point calculated = calculatePoint(bestModel, pair.getPoint1());
+            newPoints.add(new Pair(pair.getPoint1(), calculated));
+        }
+        return newPoints;
+    }
+
     public static void testForPerspective(){
 
         RansacPerspective r = new RansacPerspective();
@@ -82,5 +148,22 @@ public class RansacPerspective extends Ransac {
         testForPerspective();
     }
 
+    public List<Pair> run(String file1, String file2, int iterationNo, double maxError) throws FileNotFoundException {
+        List<Point> pointsOnA = FeaturesParser.parseFeatures(ImgSizeRetriever.class.getClassLoader().getResource(file1).getFile(), 0);
+        List<Point> pointsOnB = FeaturesParser.parseFeatures(ImgSizeRetriever.class.getClassLoader().getResource(file2).getFile(), 1);
+        List<Pair> pairs = makePairs(pointsOnA, pointsOnB);
+        saveAllPairs(pairs);
+
+        LOGGER.info("pairs : {}", pairs.size());
+        RealMatrix bestModel = ransacPerspective(iterationNo, pairs, maxError);
+        if (bestModel != null) {
+            LOGGER.info("Success!");
+        }
+        List<Pair> pairsBasedOnModel = getNewPairsBasedOnModel(bestModel, pairs);
+        LOGGER.info("pairs based on model : {}", pairsBasedOnModel.size());
+        List<Pair> filteredPairs = filterPairsFromModel(pairsBasedOnModel, maxError);
+        LOGGER.info("pairs filtered : {}", filteredPairs.size());
+        return filteredPairs;
+    }
 
 }

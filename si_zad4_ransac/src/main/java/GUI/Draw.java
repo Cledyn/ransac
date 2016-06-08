@@ -1,6 +1,6 @@
 package GUI;
 
-import features.RansacAfinic;
+import features.RansacPerspective;
 import model.Pair;
 import model.Photo;
 import org.slf4j.Logger;
@@ -27,8 +27,8 @@ public class Draw extends JFrame {
     private static Logger LOGGER = LoggerFactory.getLogger(Draw.class);
     private Photo photo1;
     private Photo photo2;
-    private final static String FILE1_FEATURES_FILEPATH = ImgSizeRetriever.class.getClassLoader().getResource("d1.png.haraff.sift").getFile();
-    private final static String FILE2_FEATURES_FILEPATH = ImgSizeRetriever.class.getClassLoader().getResource("d2.png.haraff.sift").getFile();
+    private final static String FILE1_FEATURES_FILEPATH = ImgSizeRetriever.class.getClassLoader().getResource("kubek1.png.haraff.sift").getFile();
+    private final static String FILE2_FEATURES_FILEPATH = ImgSizeRetriever.class.getClassLoader().getResource("kubek2.png.haraff.sift").getFile();
     private final static Color[] COLORS = {Color.ORANGE, Color.GRAY, Color.GREEN, Color.RED, Color.BLACK, Color.BLUE, Color.MAGENTA, Color.white};
     private final static Random rnd = new Random();
     public static final int EDGE_WIDTH = 10;
@@ -113,14 +113,14 @@ public class Draw extends JFrame {
     }*/
 
     public static void main(String[] args) throws FileNotFoundException {
-        RansacAfinic ransacAfinic = new RansacAfinic();
-        List<Pair> ransacPairs = ransacAfinic.run("d1.png.haraff.sift", "d2.png.haraff.sift", 2000, 30);
-        LOGGER.info("Found pairs : {}", ransacAfinic.getAllPairs().size());
+        RansacPerspective ransac = new RansacPerspective();
+        List<Pair> ransacPairs = ransac.run("kubek1.png.haraff.sift", "kubek2.png.haraff.sift", 2000, 10);
+        LOGGER.info("Found pairs : {}", ransac.getAllPairs().size());
         LOGGER.info("Filtered pairs : {}", ransacPairs.size());
-        Photo ph1 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("d1.png").getFile()),
-                null, ransacAfinic.getAllPairs(), ransacPairs);
-        Photo ph2 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("d2.png").getFile()),
-                null, ransacAfinic.getAllPairs(), ransacPairs);
+        Photo ph1 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("kubek1.png").getFile()),
+                null, ransac.getAllPairs(), ransacPairs);
+        Photo ph2 = new Photo(new File(ImgSizeRetriever.class.getClassLoader().getResource("kubek2.png").getFile()),
+                null, ransac.getAllPairs(), ransacPairs);
         Draw draw = new Draw("test");
         draw.setPhoto1(ph1);
         draw.setPhoto2(ph2);
